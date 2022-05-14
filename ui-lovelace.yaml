@@ -1,18 +1,64 @@
 title: Home
 views:
-  - path: default_view
+  - theme: ios-dark-mode-blue-red-alternative
+    path: default_view
     background: var(--background-image)
     title: Home
     icon: mdi:home
-    theme: ios-dark-mode-blue-red-alternative
     badges: []
     cards:
       - type: grid
         square: false
         columns: 1
         cards:
-          - type: weather-forecast
+          - type: custom:mushroom-chips-card
+            chips:
+              - type: entity
+                entity: sensor.pixel_5_ble
+              - type: conditional
+                conditions:
+                  - entity: input_boolean.washing_machine
+                    state: 'on'
+                chip:
+                  type: template
+                  double_tap_action:
+                    action: none
+                  entity: input_boolean.washing_machine
+                  icon: mdi:washing-machine
+                  content: >-
+                    {{ ((as_timestamp(states('sensor.date_time_iso')) -
+                    as_timestamp(states('input_datetime.washing_machine'))) /
+                    60) | round(0) }} minutes
+                  tap_action:
+                    action: none
+                  hold_action:
+                    action: none
+                  icon_color: >-
+                    {% if ((as_timestamp(states('sensor.date_time_iso')) -
+                    as_timestamp(states('input_datetime.washing_machine'))) /
+                    60) | round(0) > 80 %}
+
+                    red
+
+                    {% else %}
+
+                    white
+
+                    {% endif %}
+              - type: conditional
+                conditions:
+                  - entity: binary_sensor.lumi_lumi_sensor_wleak_aq1_51886507_ias_zone
+                    state: 'on'
+                chip:
+                  type: template
+                  icon: mdi:water
+                  content: Shower
+                  entity: binary_sensor.lumi_lumi_sensor_wleak_aq1_51886507_ias_zone
+          - show_current: true
+            show_forecast: true
+            type: weather-forecast
             entity: weather.home
+            secondary_info_attribute: humidity
           - type: thermostat
             entity: climate.living_room
           - type: entities
@@ -27,13 +73,10 @@ views:
                 name: Master Temp
               - entity: sensor.upstair_s_office_temperature
                 name: Office Temp
-            state_color: false
       - type: grid
         cards:
-          - type: custom:mushroom-entity-card
-            icon: mdi:power
+          - type: custom:mushroom-template-card
             entity: remote.ir_remote_remote
-            secondary_info: none
             tap_action:
               action: call-service
               service: remote.send_command
@@ -42,8 +85,15 @@ views:
                 command: power
               target:
                 entity_id: remote.ir_remote_remote
-            icon_color: white
-            name: Living Room TV
+            icon_color: |-
+              {% if is_state('media_player.living_room_ccwgtv', 'off') %}
+              white
+              {% else %}
+              orange
+              {% endif %}
+            icon: mdi:power
+            primary: Living Room TV
+            secondary: '{{ states(''media_player.living_room_ccwgtv'') | title }}'
           - type: grid
             cards:
               - type: button
@@ -55,7 +105,8 @@ views:
                   service: androidtv.adb_command
                   service_data:
                     command: HOME
-                    entity_id: media_player.ccgtv_living_room
+                  target:
+                    entity_id: media_player.living_room_ccwgtv
               - type: button
                 tap_action:
                   action: call-service
@@ -256,6 +307,30 @@ views:
             source: full
             artwork: material
             info: scroll
+            group: true
+            replace_mute: play_pause
+            icon: mdi:sofa
+          - type: custom:mini-media-player
+            entity: media_player.projector_samsung_projector_lsp9
+            artwork: material
+            group: true
+            name: Media Room TV
+            icon: mdi:theater
+            info: scroll
+            source: full
+          - type: custom:mini-media-player
+            entity: media_player.gym_ccwgtv
+            group: true
+            name: Gym Room TV
+            icon: mdi:dumbbell
+            artwork: material
+          - type: custom:mini-media-player
+            entity: media_player.living_room
+            group: true
+            name: Bose Soundbar
+            volume_stateless: false
+            source: full
+            toggle_power: false
         columns: 1
         square: false
       - type: grid
@@ -266,7 +341,9 @@ views:
             icon: mdi:floor-plan
             layout: horizontal
             show_brightness_control: true
-          - type: grid
+          - square: false
+            columns: 2
+            type: grid
             cards:
               - type: custom:mushroom-light-card
                 entity: light.living_room_main_lights
@@ -309,26 +386,43 @@ views:
                 entity: light.front_foyer_main_lights
                 show_brightness_control: true
                 name: Foyer
-              - type: custom:mushroom-alarm-control-panel-card
-                entity: >-
-                  alarm_control_panel.home_alarm_control_panel_alarm_control_panel
-                states: []
-                name: Alarm
-                layout: horizontal
-              - type: custom:mushroom-cover-card
-                entity: cover.living_room_shades
-                name: Shades
-                layout: horizontal
               - type: custom:mushroom-light-card
                 entity: light.front_porch_overhead_light
                 name: Porch
-              - type: custom:mushroom-entity-card
-                entity: lock.front_door
+                show_brightness_control: true
+          - square: false
             columns: 2
-            square: false
+            type: grid
+            cards:
+              - type: custom:mushroom-lock-card
+                entity: lock.front_door_lock
+                layout: vertical
+                hide_state: true
+              - type: custom:mushroom-alarm-control-panel-card
+                entity: >-
+                  alarm_control_panel.home_alarm_control_panel_alarm_control_panel
+                states:
+                  - armed_home
+                  - armed_away
+                name: Alarm
+                layout: vertical
+                hide_state: true
+              - type: custom:mushroom-cover-card
+                entity: cover.living_room_shades
+                name: Shades
+                layout: vertical
+                show_position_control: false
+                show_buttons_control: true
+              - type: custom:mushroom-entity-card
+                entity: binary_sensor.garage_door_east_contact
+                layout: vertical
+                use_entity_picture: false
+                name: Garage Door (East)
         columns: 1
         square: false
-      - type: grid
+      - square: false
+        columns: 1
+        type: grid
         cards:
           - type: custom:mushroom-light-card
             entity: light.master_bedroom
@@ -336,15 +430,16 @@ views:
             icon: mdi:bed
             layout: horizontal
             show_brightness_control: true
-          - type: grid
+          - square: false
             columns: 2
-            square: false
+            type: grid
             cards:
               - type: custom:mushroom-light-card
                 entity: light.master_bedroom_main_lights
                 show_brightness_control: true
                 name: Bedroom
                 icon: mdi:bed
+                use_light_color: true
               - type: custom:mushroom-light-card
                 entity: light.master_bedroom_accent_lights
                 show_brightness_control: true
@@ -354,46 +449,66 @@ views:
                 show_brightness_control: true
                 name: Nightstands
                 icon: mdi:floor-lamp
+                show_color_temp_control: true
+                use_light_color: true
               - type: custom:mushroom-fan-card
                 entity: fan.pure_cool_formaldehyde
-                icon_animation: true
-                show_percentage_control: true
                 name: Fan
                 show_oscillate_control: true
-              - type: custom:mushroom-entity-card
-                entity: switch.in_wall_smart_switch
-                name: Bath Switch
-                icon: mdi:light-switch
-                tap_action:
-                  action: toggle
-                hold_action:
-                  action: more-info
-                vertical: true
+                show_percentage_control: true
+                icon_animation: true
               - type: custom:mushroom-light-card
-                entity: light.master_bathroom
-                icon: mdi:shower
+                entity: light.master_bathroom_lights
+                icon: mdi:toilet
                 show_brightness_control: true
                 name: Bath
                 show_color_control: true
+                use_light_color: true
+              - type: custom:mushroom-entity-card
+                entity: switch.master_bath_fan
+                tap_action:
+                  action: toggle
+                layout: vertical
+              - type: custom:mushroom-entity-card
+                entity: switch.master_bathroom_tub_switch
+                icon: mdi:bathtub-outline
+                layout: vertical
+                tap_action:
+                  action: toggle
           - type: custom:mushroom-light-card
             entity: light.upstairs
             name: Upstairs
             icon: mdi:floor-plan
             layout: horizontal
             show_brightness_control: true
-          - type: grid
+          - type: custom:mushroom-chips-card
+            chips:
+              - type: template
+                tap_action:
+                  action: call-service
+                  service: scene.turn_on
+                  service_data: {}
+                  target:
+                    entity_id: scene.morning_office
+                icon: mdi:weather-sunset-up
+                content: Morning Office
+          - square: false
+            columns: 2
+            type: grid
             cards:
               - type: custom:mushroom-light-card
-                entity: light.upstair_s_office
+                entity: light.upstair_s_office_main
                 show_brightness_control: true
                 use_light_color: true
                 name: Office
                 show_color_temp_control: true
+                show_color_control: true
               - type: custom:mushroom-light-card
                 entity: light.upstair_s_office_lamp
                 name: Office Lamp
                 show_brightness_control: true
                 show_color_temp_control: true
+                use_light_color: true
               - type: custom:mushroom-light-card
                 entity: light.gym
                 use_light_color: true
@@ -402,7 +517,536 @@ views:
               - type: custom:mushroom-light-card
                 entity: light.hallway
                 show_brightness_control: true
-            columns: 2
+  - theme: ios-dark-mode-blue-red-alternative
+    title: Remote
+    path: gym-remote
+    icon: mdi:dumbbell
+    badges: []
+    cards:
+      - type: vertical-stack
+        cards:
+          - type: grid
+            cards:
+              - type: grid
+                cards:
+                  - type: button
+                    show_icon: true
+                    show_name: false
+                    icon: mdi:home
+                    tap_action:
+                      action: call-service
+                      service: androidtv.adb_command
+                      service_data:
+                        command: HOME
+                        entity_id: media_player.gym_ccwgtv
+                  - type: button
+                    tap_action:
+                      action: call-service
+                      service: androidtv.adb_command
+                      service_data:
+                        command: UP
+                        entity_id: media_player.gym_ccwgtv
+                    icon: mdi:arrow-up-bold
+                    show_name: false
+                    show_icon: true
+                    show_state: false
+                  - type: custom:mushroom-light-card
+                    entity: light.gym
+                    show_brightness_control: true
+                    use_light_color: true
+                    name: Gym
+                  - type: button
+                    tap_action:
+                      action: call-service
+                      service: androidtv.adb_command
+                      service_data:
+                        command: LEFT
+                        entity_id: media_player.gym_ccwgtv
+                    icon: mdi:arrow-left-bold
+                    show_name: false
+                  - type: button
+                    icon: mdi:checkbox-blank-circle
+                    show_name: false
+                    tap_action:
+                      action: call-service
+                      service: androidtv.adb_command
+                      service_data:
+                        command: CENTER
+                      target:
+                        entity_id: media_player.gym_ccwgtv
+                  - type: button
+                    tap_action:
+                      action: call-service
+                      service: androidtv.adb_command
+                      service_data:
+                        command: RIGHT
+                        entity_id: media_player.gym_ccwgtv
+                    icon: mdi:arrow-right-bold
+                    show_name: false
+                  - type: button
+                    show_name: false
+                    show_icon: true
+                    icon: mdi:undo-variant
+                    tap_action:
+                      action: call-service
+                      service: androidtv.adb_command
+                      service_data:
+                        command: BACK
+                      target:
+                        entity_id: media_player.living_room_ccwgtv
+                  - type: button
+                    tap_action:
+                      action: call-service
+                      service: androidtv.adb_command
+                      service_data:
+                        command: DOWN
+                        entity_id: media_player.gym_ccwgtv
+                    icon: mdi:arrow-down-bold
+                    show_name: false
+                  - type: custom:mushroom-light-card
+                    entity: light.tv_ambilight
+                    show_brightness_control: true
+                    use_light_color: true
+                    name: Ambient
+                  - show_name: false
+                    show_icon: true
+                    type: button
+                    tap_action:
+                      action: call-service
+                      service: androidtv.adb_command
+                      service_data:
+                        command: VOLUME_DOWN
+                      target:
+                        entity_id: media_player.gym_ccwgtv
+                    icon: mdi:volume-minus
+                    show_state: false
+                  - show_name: false
+                    show_icon: true
+                    type: button
+                    tap_action:
+                      action: call-service
+                      service: androidtv.adb_command
+                      service_data:
+                        command: VOLUME_MUTE
+                      target:
+                        entity_id: media_player.gym_ccwgtv
+                    icon: mdi:volume-mute
+                    show_state: false
+                  - show_name: false
+                    show_icon: true
+                    type: button
+                    tap_action:
+                      action: call-service
+                      service: androidtv.adb_command
+                      service_data:
+                        command: VOLUME_UP
+                        entity_id: media_player.gym_ccwgtv
+                    icon: mdi:volume-plus
+                    show_state: false
+              - type: custom:mini-media-player
+                name: Gym
+                shortcuts:
+                  columns: 2
+                  buttons:
+                    - name: Prime Video
+                      type: service
+                      id: androidtv.adb_command
+                      service: androidtv.adb_command
+                      data:
+                        entity_id: media_player.gym_tv
+                        command: >-
+                          am start -a android.intent.action.VIEW -n
+                          com.amazon.amazonvideo.livingroom/com.amazon.ignition.IgnitionActivity
+                    - name: Disney+
+                      type: service
+                      id: androidtv.adb_command
+                      service: androidtv.adb_command
+                      data:
+                        entity_id: media_player.gym_ccwgtv
+                        command: >-
+                          am start -a android.intent.action.VIEW -d 
+                          https://www.disneyplus.com/
+                    - name: CNN
+                      type: service
+                      id: androidtv.adb_command
+                      service: androidtv.adb_command
+                      data:
+                        entity_id: media_player.gym_ccwgtv
+                        command: >-
+                          am start -a android.intent.action.VIEW -d
+                          https://tv.youtube.com/watch/PyRp1_3Ql70
+                    - name: Big Bang Theory
+                      type: service
+                      id: androidtv.adb_command
+                      service: androidtv.adb_command
+                      data:
+                        entity_id: media_player.gym_ccwgtv
+                        command: >-
+                          am start -a android.intent.action.VIEW -d
+                          https://play.hbomax.com/page/urn:hbo:page:GXdRsewUPO5uAuwEAABEI:type:series
+                    - name: Fraiser
+                      type: service
+                      id: androidtv.adb_command
+                      service: androidtv.adb_command
+                      data:
+                        entity_id: media_player.gym_ccwgtv
+                        command: >-
+                          am start -a android.intent.action.VIEW -d
+                          https://www.hulu.com/series/frasier-0cb9b63b-de82-4751-99c9-1cb12118ab9d
+                    - name: Simpsons
+                      type: service
+                      id: androidtv.adb_command
+                      service: androidtv.adb_command
+                      data:
+                        entity_id: media_player.gym_ccwgtv
+                        command: >-
+                          am start -a android.intent.action.VIEW -d
+                          https://www.disneyplus.com/series/the-simpsons/3ZoBZ52QHb4x
+                entity: media_player.gym_ccwgtv
+                hide:
+                  name: true
+                  icon: true
+                  info: false
+                  power: false
+                  source: false
+                  sound_mode: false
+                  controls: false
+                  prev: false
+                  next: false
+                  play_pause: false
+                  play_stop: false
+                  jump: false
+                  volume: true
+                  volume_level: false
+                  mute: false
+                  progress: false
+                  runtime: false
+                  runtime_remaining: false
+                  artwork_border: false
+                  power_state: false
+                  icon_state: false
+                  shuffle: false
+                  repeat: false
+                  state_label: null
+                toggle_power: true
+                source: full
+                artwork: material
+                info: scroll
+            columns: 1
             square: false
+  - theme: ios-dark-mode-blue-red-alternative
+    title: Remote
+    path: living-room-remote
+    icon: mdi:sofa
+    badges: []
+    cards:
+      - type: vertical-stack
+        cards:
+          - type: grid
+            cards:
+              - type: custom:mushroom-template-card
+                entity: remote.ir_remote_remote
+                tap_action:
+                  action: call-service
+                  service: remote.send_command
+                  service_data:
+                    device: livingroomtv
+                    command: power
+                  target:
+                    entity_id: remote.ir_remote_remote
+                icon_color: |-
+                  {% if is_state('media_player.living_room_ccwgtv', 'off') %}
+                  white
+                  {% else %}
+                  orange
+                  {% endif %}
+                icon: mdi:power
+                primary: Living Room TV
+                secondary: '{{ states(''media_player.living_room_ccwgtv'') | title }}'
+              - type: grid
+                cards:
+                  - type: button
+                    show_icon: true
+                    show_name: false
+                    icon: mdi:home
+                    tap_action:
+                      action: call-service
+                      service: androidtv.adb_command
+                      service_data:
+                        command: HOME
+                        entity_id: media_player.living_room_ccwgtv
+                  - type: button
+                    tap_action:
+                      action: call-service
+                      service: remote.send_command
+                      service_data:
+                        device: livingroomtv
+                        command: up
+                      target:
+                        entity_id: remote.ir_remote_remote
+                    icon: mdi:arrow-up-bold
+                    show_name: false
+                    show_icon: true
+                    show_state: false
+                  - type: custom:mushroom-light-card
+                    entity: light.bookshelf
+                    show_brightness_control: true
+                    icon: mdi:bookshelf
+                  - type: button
+                    tap_action:
+                      action: call-service
+                      service: remote.send_command
+                      service_data:
+                        device: livingroomtv
+                        command: left
+                      target:
+                        entity_id: remote.ir_remote_remote
+                    icon: mdi:arrow-left-bold
+                    show_name: false
+                  - type: button
+                    icon: mdi:checkbox-blank-circle
+                    show_name: false
+                    tap_action:
+                      action: call-service
+                      service: remote.send_command
+                      service_data:
+                        device: livingroomtv
+                        command: select
+                      target:
+                        entity_id: remote.ir_remote_remote
+                    hold_action:
+                      action: more-info
+                    entity: camera.tv_ambilight
+                  - type: button
+                    tap_action:
+                      action: call-service
+                      service: remote.send_command
+                      service_data:
+                        device: livingroomtv
+                        command: right
+                      target:
+                        entity_id: remote.ir_remote_remote
+                    icon: mdi:arrow-right-bold
+                    show_name: false
+                  - type: button
+                    show_name: false
+                    show_icon: true
+                    icon: mdi:undo-variant
+                    tap_action:
+                      action: call-service
+                      service: androidtv.adb_command
+                      service_data:
+                        command: BACK
+                      target:
+                        entity_id: media_player.living_room_ccwgtv
+                  - type: button
+                    tap_action:
+                      action: call-service
+                      service: remote.send_command
+                      service_data:
+                        device: livingroomtv
+                        command: down
+                      target:
+                        entity_id: remote.ir_remote_remote
+                    icon: mdi:arrow-down-bold
+                    show_name: false
+                  - type: custom:mushroom-light-card
+                    entity: light.tv_ambilight
+                    show_brightness_control: true
+                    use_light_color: true
+                    name: Ambient
+                  - type: button
+                    tap_action:
+                      action: call-service
+                      service: remote.send_command
+                      service_data:
+                        device: livingroomtv
+                        command: volumedown
+                      target:
+                        entity_id: remote.ir_remote_remote
+                    icon: mdi:volume-minus
+                  - type: button
+                    tap_action:
+                      action: call-service
+                      service: remote.send_command
+                      service_data:
+                        device: livingroomtv
+                        command: mute
+                      target:
+                        entity_id: remote.ir_remote_remote
+                    icon: mdi:volume-off
+                  - type: button
+                    tap_action:
+                      action: call-service
+                      service: remote.send_command
+                      service_data:
+                        device: livingroomtv
+                        command: volumeup
+                      target:
+                        entity_id: remote.ir_remote_remote
+                    icon: mdi:volume-plus
+                square: true
+              - type: custom:mini-media-player
+                name: Living Room
+                shortcuts:
+                  columns: 2
+                  buttons:
+                    - name: Prime Video
+                      type: service
+                      id: androidtv.adb_command
+                      service: androidtv.adb_command
+                      data:
+                        entity_id: media_player.living_room_ccwgtv
+                        command: >-
+                          am start -a android.intent.action.VIEW -n
+                          com.amazon.amazonvideo.livingroom/com.amazon.ignition.IgnitionActivity
+                    - name: Disney+
+                      type: service
+                      id: androidtv.adb_command
+                      service: androidtv.adb_command
+                      data:
+                        entity_id: media_player.living_room_ccwgtv
+                        command: >-
+                          am start -a android.intent.action.VIEW -d 
+                          https://www.disneyplus.com/
+                    - name: CNN
+                      type: service
+                      id: androidtv.adb_command
+                      service: androidtv.adb_command
+                      data:
+                        entity_id: media_player.living_room_ccwgtv
+                        command: >-
+                          am start -a android.intent.action.VIEW -d
+                          https://tv.youtube.com/watch/PyRp1_3Ql70
+                    - name: Big Bang Theory
+                      type: service
+                      id: androidtv.adb_command
+                      service: androidtv.adb_command
+                      data:
+                        entity_id: media_player.living_room_ccwgtv
+                        command: >-
+                          am start -a android.intent.action.VIEW -d
+                          https://play.hbomax.com/page/urn:hbo:page:GXdRsewUPO5uAuwEAABEI:type:series
+                    - name: Fraiser
+                      type: service
+                      id: androidtv.adb_command
+                      service: androidtv.adb_command
+                      data:
+                        entity_id: media_player.living_room_ccwgtv
+                        command: >-
+                          am start -a android.intent.action.VIEW -d
+                          https://www.hulu.com/series/frasier-0cb9b63b-de82-4751-99c9-1cb12118ab9d
+                    - name: Simpsons
+                      type: service
+                      id: androidtv.adb_command
+                      service: androidtv.adb_command
+                      data:
+                        entity_id: media_player.living_room_ccwgtv
+                        command: >-
+                          am start -a android.intent.action.VIEW -d
+                          https://www.disneyplus.com/series/the-simpsons/3ZoBZ52QHb4x
+                entity: media_player.living_room_tv
+                hide:
+                  name: true
+                  icon: true
+                  info: false
+                  power: false
+                  source: false
+                  sound_mode: false
+                  controls: false
+                  prev: false
+                  next: false
+                  play_pause: false
+                  play_stop: false
+                  jump: false
+                  volume: true
+                  volume_level: false
+                  mute: false
+                  progress: false
+                  runtime: false
+                  runtime_remaining: false
+                  artwork_border: false
+                  power_state: false
+                  icon_state: false
+                  shuffle: false
+                  repeat: false
+                  state_label: null
+                toggle_power: true
+                source: full
+                artwork: material
+                info: scroll
+            columns: 1
+            square: false
+      - type: vertical-stack
+        cards:
+          - type: picture-glance
+            title: TV
+            image: https://demo.home-assistant.io/stub_config/kitchen.png
+            entities: []
+            camera_image: camera.tv_ambilight
+            camera_view: live
+  - theme: Backend-selected
+    icon: mdi:music-box
+    path: music
+    badges: []
+    cards:
+      - type: custom:mini-media-player
+        entity: media_player.ytube_music_player
+        group: true
+        name: YouTube (Home Speakers)
+        artwork: full-cover
+        scale: '1'
+  - theme: ios-dark-mode-blue-red-alternative
+    icon: mdi:database
+    badges: []
+    cards:
+      - square: false
         columns: 1
-        square: false
+        type: grid
+        cards:
+          - square: false
+            columns: 2
+            type: grid
+            cards:
+              - hours_to_show: 24
+                type: custom:mini-graph-card
+                entities:
+                  - sensor.processor_temperature
+                name: CPU Temp
+              - hours_to_show: 24
+                graph: line
+                type: custom:mini-graph-card
+                entities:
+                  - sensor.processor_use
+                name: CPU Usage
+              - hours_to_show: 24
+                graph: line
+                type: custom:mini-graph-card
+                entities:
+                  - sensor.memory_use_percent
+                detail: 2
+                name: RAM Usage
+              - hours_to_show: 24
+                graph: line
+                type: custom:mini-graph-card
+                entities:
+                  - sensor.disk_use_percent
+                detail: 2
+                name: Disk Usage
+  - theme: ios-dark-mode-blue-red-alternative
+    title: Traffic
+    path: traffic
+    icon: mdi:car
+    visible: []
+    badges: []
+    cards:
+      - camera_view: auto
+        type: picture-glance
+        title: 85th and 124th
+        image: https://its.kirklandwa.gov/CamView/85thSt132ndAvePTZ.jpg
+        entities: []
+      - camera_view: auto
+        type: picture-glance
+        title: SR 520
+        image: https://images.wsdot.wa.gov/nw/520vc00293.jpg
+        entities: []
