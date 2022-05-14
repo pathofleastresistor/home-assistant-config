@@ -1,0 +1,172 @@
+# Configure a default setup of Home Assistant (frontend, api, etc)
+default_config:
+
+automation: !include automations.yaml
+script: !include scripts.yaml
+scene: !include scenes.yaml
+
+homeassistant:
+  allowlist_external_dirs:
+    - /config
+
+# https://www.home-assistant.io/integrations/http/
+http:
+  use_x_forwarded_for: true
+  trusted_proxies:
+    - 172.27.0.0/24
+
+# https://www.home-assistant.io/integrations/frontend/
+frontend:
+  themes: !include_dir_merge_named themes
+
+sensor:
+  - platform: time_date
+    display_options:
+      - 'time'
+      - 'date'
+      - 'date_time'
+      - 'date_time_utc'
+      - 'date_time_iso'
+  - platform: systemmonitor
+    resources:
+      - type: disk_use_percent
+        arg: /config
+      - type: memory_free
+  - platform: systemmonitor
+    resources:
+      - type: processor_use
+  - platform: systemmonitor
+    resources:
+      - type: processor_temperature
+  - platform: systemmonitor
+    resources:
+      - type: memory_use_percent
+  - platform: systemmonitor
+    resources:
+      - type: disk_use_percent
+  - platform: mqtt_room
+    name: "Pixel 5 BLE"
+    device_id: !secret amit_phone_ble_id
+    state_topic: "espresense/rooms"
+    timeout: 5
+    away_timeout: 120
+      
+
+# https://www.home-assistant.io/integrations/recorder/
+recorder:
+  db_url: !secret recorder_db_url
+  purge_keep_days: 10
+  exclude:
+    domains:
+      - device_tracker
+      - media_player
+      - uptime
+      - time_date
+      - worldclock
+    entity_globs:
+      - sensor.clock*
+      - sensor.date*
+      - sensor.glances*
+      - sensor.load_*m
+      - sensor.time*
+      - sensor.uptime*
+    entities:
+      - sensor.time
+      - sensor.date
+      - sensor.date_time
+      - sensor.date_time_utc
+      - sensor.date_time_iso
+      - sensor.time_date
+      - sensor.time_utc
+      - sensor.beat
+      - sensor.espresense_master_bedroom_uptime
+      - binary_sensor.espresense_master_bedroom
+      - sensor.espresense_gym_uptime
+      - binary_sensor.espresense_gym
+      - binary_sensor.espresense_kitchen
+      - sensor.espresense_kitchen_uptime
+      - sensor.espresense_gym_free_mem
+      - sensor.memory_free
+      - sensor.espresense_master_bedroom_free_mem
+      - sensor.espresense_kitchen_free_mem
+      - sensor.processor_use
+
+# https://www.home-assistant.io/integrations/sun/
+sun:
+
+# Text to speech
+tts:
+  - platform: google_translate
+  - platform: amazon_polly
+    aws_access_key_id: !secret aws_access_key_id
+    aws_secret_access_key: !secret aws_secret_access_key
+    text_type: ssml 
+    voice: Mia
+    cache: True
+    engine: neural
+
+# https://www.home-assistant.io/integrations/panel_iframe/
+panel_iframe:
+  codeserver:
+    title: "Code Server"
+    url: !secret code_server_url
+    require_admin: true
+    icon: mdi:microsoft-visual-studio-code
+  grocy:
+    title: "Grocy"
+    url: !secret grocy_url
+    require_admin: true
+    icon: mdi:food-variant
+  tracker:
+    title: "Tracker"
+    url: !secret tracker_app_url
+    require_admin: true
+    icon: mdi:format-list-checks
+  blog:
+    title: "Blog"
+    url: !secret blog_url
+    icon: mdi:post
+
+# https://www.home-assistant.io/integrations/rainbird/
+rainbird:
+  host: 192.168.50.73
+  password: !secret rainbird_password
+  trigger_time: 10
+  zones:
+    1:
+      friendly_name: Front Grass
+      trigger_time:
+        minutes: 1
+    2:
+      friendly_name: Front Mulch
+      trigger_time:
+        minutes: 1
+    3:
+      friendly_name: Back Left
+      trigger_time:
+        minutes: 1
+    4:
+      friendly_name: Back Right
+      trigger_time:
+        minutes: 1
+
+# https://www.home-assistant.io/integrations/calendar.google/
+google:
+  client_id: !secret calendar_google_client_id
+  client_secret: !secret calendar_google_client_secret
+
+# https://www.home-assistant.io/integrations/google_assistant/
+google_assistant:
+  project_id: !secret googlet_assistant_project_id
+  service_account: !include home-assistant.json
+  report_state: true
+  exposed_domains:
+    - switch
+    - light
+
+# https://www.home-assistant.io/integrations/nest/
+nest:
+  client_id: !secret nest_client_id
+  client_secret: !secret nest_client_secret
+  # "Project ID" in the Device Access Console (not Cloud Project ID!)
+  project_id: !secret nest_project_id

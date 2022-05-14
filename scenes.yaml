@@ -1,0 +1,263 @@
+- id: '1648444154843'
+  name: Master Bathroom - Relax
+  entities:
+    light.master_bathroom_1:
+      min_mireds: 150
+      max_mireds: 500
+      effect_list:
+      - blink
+      - breathe
+      - okay
+      - channel_change
+      - finish_effect
+      - stop_effect
+      supported_color_modes:
+      - color_temp
+      - xy
+      color:
+        x: 0.417
+        y: 0.218
+      linkquality: 255
+      update:
+        state: idle
+      update_available: false
+      friendly_name: Master Bathroom 1
+      supported_features: 63
+      color_mode: xy
+      brightness: 152
+      hs_color:
+      - 315.417
+      - 56.471
+      rgb_color:
+      - 255
+      - 111
+      - 218
+      xy_color:
+      - 0.417
+      - 0.218
+      state: 'on'
+    light.master_bathroom_2:
+      min_mireds: 150
+      max_mireds: 500
+      effect_list:
+      - blink
+      - breathe
+      - okay
+      - channel_change
+      - finish_effect
+      - stop_effect
+      supported_color_modes:
+      - color_temp
+      - xy
+      color:
+        x: 0.141
+        y: 0.137
+      linkquality: 255
+      update:
+        state: idle
+      update_available: false
+      friendly_name: Master Bathroom 2
+      supported_features: 63
+      color_mode: xy
+      brightness: 152
+      hs_color:
+      - 210.364
+      - 96.863
+      rgb_color:
+      - 8
+      - 130
+      - 255
+      xy_color:
+      - 0.141
+      - 0.137
+      state: 'on'
+    light.master_bathroom_3:
+      min_mireds: 150
+      max_mireds: 500
+      effect_list:
+      - blink
+      - breathe
+      - okay
+      - channel_change
+      - finish_effect
+      - stop_effect
+      supported_color_modes:
+      - color_temp
+      - xy
+      color:
+        x: 0.417
+        y: 0.218
+      linkquality: 254
+      update:
+        state: idle
+      update_available: false
+      friendly_name: Master Bathroom 3
+      supported_features: 63
+      color_mode: xy
+      brightness: 152
+      hs_color:
+      - 315.417
+      - 56.471
+      rgb_color:
+      - 255
+      - 111
+      - 218
+      xy_color:
+      - 0.417
+      - 0.218
+      state: 'on'
+  icon: mdi:emoticon-cool-outline
+- id: '1648651428307'
+  name: Gym - Beast
+  entities:
+    light.gym_1:
+      min_mireds: 154
+      max_mireds: 554
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 127.5
+      hs_color:
+      - 0
+      - 100
+      rgb_color:
+      - 255
+      - 0
+      - 0
+      xy_color:
+      - 0.701
+      - 0.299
+      color_temp: 341
+      attribution: Data provided by Wyze
+      state: 'on'
+      available: true
+      device_model: WLPA19C
+      mac: 7C78B228C48B
+      IP: 192.168.50.166
+      RSSI: '-45'
+      SSID: sacredheart
+      local_control: false
+      mode: Color
+      friendly_name: Gym 1
+      supported_features: 19
+    light.gym_2:
+      min_mireds: 154
+      max_mireds: 554
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 127.5
+      hs_color:
+      - 0
+      - 100
+      rgb_color:
+      - 255
+      - 0
+      - 0
+      xy_color:
+      - 0.701
+      - 0.299
+      color_temp: 341
+      attribution: Data provided by Wyze
+      state: 'on'
+      available: true
+      device_model: WLPA19C
+      mac: 7C78B21D8ACF
+      IP: 192.168.50.220
+      RSSI: '-60'
+      SSID: sacredheart
+      local_control: true
+      mode: Color
+      friendly_name: Gym 2
+      supported_features: 19
+    light.gym_3:
+      min_mireds: 154
+      max_mireds: 554
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 127.5
+      hs_color:
+      - 0
+      - 100
+      rgb_color:
+      - 255
+      - 0
+      - 0
+      xy_color:
+      - 0.701
+      - 0.299
+      color_temp: 341
+      attribution: Data provided by Wyze
+      state: 'on'
+      available: true
+      device_model: WLPA19C
+      mac: 7C78B220F378
+      IP: 192.168.50.232
+      RSSI: '-37'
+      SSID: sacredheart
+      local_control: false
+      mode: Color
+      friendly_name: Gym 3
+      supported_features: 19
+  icon: mdi:turtle
+- id: '1649692075359'
+  name: Morning Office
+  entities:
+    light.upstair_s_office:
+      min_mireds: 154
+      max_mireds: 554
+      supported_color_modes:
+      - color_temp
+      - hs
+      entity_id:
+      - light.amit_office_1
+      - light.amit_office_2
+      - light.amit_office_3
+      - light.camera
+      - light.camera_2
+      icon: mdi:lightbulb-group
+      friendly_name: Upstair's Office
+      supported_features: 0
+      color_mode: hs
+      brightness: 222
+      hs_color:
+      - 39.822
+      - 22.353
+      rgb_color:
+      - 255
+      - 235
+      - 197
+      xy_color:
+      - 0.374
+      - 0.367
+      state: 'on'
+    light.upstair_s_office_lamp:
+      min_mireds: 154
+      max_mireds: 554
+      supported_color_modes:
+      - color_temp
+      - hs
+      entity_id:
+      - light.camera
+      - light.camera_2
+      icon: mdi:lightbulb-group
+      friendly_name: Upstair's Office Lamp
+      supported_features: 0
+      color_mode: hs
+      brightness: 173
+      hs_color:
+      - 27.556
+      - 52.941
+      rgb_color:
+      - 255
+      - 182
+      - 120
+      xy_color:
+      - 0.482
+      - 0.38
+      state: 'on'
+  icon: mdi:chair-rolling
