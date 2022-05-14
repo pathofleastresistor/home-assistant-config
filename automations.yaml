@@ -39,15 +39,11 @@
   alias: Master Bedroom - Motion Lights
   description: ''
   trigger:
-  - type: motion
-    platform: device
-    device_id: 148b73a92c10a65eecd712fdf8958173
-    entity_id: binary_sensor.master_motion_ias_zone
-    domain: binary_sensor
-  condition:
-  - condition: numeric_state
-    entity_id: sensor.master_motion_illuminance
-    below: '10'
+  - platform: mqtt
+    topic: zigbee2mqtt/Master Bedroom Motion Sensor
+    payload: 'true'
+    value_template: '{{ value_json.occupancy }}'
+  condition: []
   action:
   - service: light.turn_on
     data:
