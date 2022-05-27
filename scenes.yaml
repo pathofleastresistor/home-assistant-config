@@ -207,9 +207,11 @@
 - id: '1649692075359'
   name: Morning Office
   entities:
-    light.upstair_s_office:
+    light.upstair_s_office_main:
       min_mireds: 154
       max_mireds: 554
+      effect_list:
+      - sun match
       supported_color_modes:
       - color_temp
       - hs
@@ -217,27 +219,27 @@
       - light.amit_office_1
       - light.amit_office_2
       - light.amit_office_3
-      - light.camera
-      - light.camera_2
       icon: mdi:lightbulb-group
-      friendly_name: Upstair's Office
-      supported_features: 0
+      friendly_name: Upstair's Office Main
+      supported_features: 4
       color_mode: hs
-      brightness: 222
+      brightness: 191
       hs_color:
-      - 39.822
-      - 22.353
+      - 225.176
+      - 100
       rgb_color:
+      - 0
+      - 63
       - 255
-      - 235
-      - 197
       xy_color:
-      - 0.374
-      - 0.367
+      - 0.137
+      - 0.065
       state: 'on'
     light.upstair_s_office_lamp:
       min_mireds: 154
       max_mireds: 554
+      effect_list:
+      - sun match
       supported_color_modes:
       - color_temp
       - hs
@@ -246,18 +248,18 @@
       - light.camera_2
       icon: mdi:lightbulb-group
       friendly_name: Upstair's Office Lamp
-      supported_features: 0
+      supported_features: 4
       color_mode: hs
-      brightness: 173
+      brightness: 191
       hs_color:
-      - 27.556
-      - 52.941
+      - 29.062
+      - 75.294
       rgb_color:
       - 255
-      - 182
-      - 120
+      - 155
+      - 63
       xy_color:
-      - 0.482
-      - 0.38
+      - 0.556
+      - 0.388
       state: 'on'
   icon: mdi:chair-rolling
