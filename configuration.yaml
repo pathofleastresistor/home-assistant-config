@@ -166,13 +166,6 @@ google_assistant:
     - switch
     - light
 
-# https://www.home-assistant.io/integrations/nest/
-nest:
-  client_id: !secret nest_client_id
-  client_secret: !secret nest_client_secret
-  # "Project ID" in the Device Access Console (not Cloud Project ID!)
-  project_id: !secret nest_project_id
-
 # https://github.com/KoljaWindeler/ytube_music_player
 input_select:
   ytube_music_player_source:
