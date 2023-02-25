@@ -30,10 +30,12 @@
       brightness_pct: 15
     target:
       entity_id: light.main_floor
+    enabled: false
   - service: cover.open_cover
     data: {}
     target:
       entity_id: cover.living_room_shades
+    enabled: false
   mode: single
 - id: '1644838194497'
   alias: Master Bedroom - Motion Lights
@@ -161,7 +163,7 @@
       entity_id: light.front_porch_overhead_light
   mode: single
 - id: '1649170382940'
-  alias: Laundy - Washing Machine Timer
+  alias: Laundry - Washing Machine Timer
   description: Start the timer for how long the washing machine is running.
   trigger:
   - platform: mqtt
@@ -196,8 +198,8 @@
   alias: Home Manager - Notify
   description: ''
   trigger:
-  - platform: time
-    at: 06:00:00
+  - platform: time_pattern
+    minutes: /1
   condition: []
   action:
   - event: HOME_MANAGER_NOTIFY
@@ -266,4 +268,122 @@
   action:
   - service: backup.create
     data: {}
+  mode: single
+- id: '1654466376917'
+  alias: Laundry - Washing Machine Notify
+  description: ''
+  trigger:
+  - platform: numeric_state
+    entity_id: sensor.washing_machine_plug_power
+    for:
+      hours: 0
+      minutes: 2
+      seconds: 0
+    below: '5'
+    attribute: power
+  condition: []
+  action:
+  - service: tts.google_translate_say
+    data:
+      entity_id: media_player.home_speakers
+      message: The laundry is done.
+  mode: single
+- id: '1654892579377'
+  alias: Doorbell - Notify Google and send camera snapshot to app
+  description: ''
+  use_blueprint:
+    path: seamus65/doorbell-notify-google-and-send-camera-snapshot-to-app.yaml
+    input:
+      doorbell: binary_sensor.front_door_ding
+      google_device: media_player.home_speakers
+      camera: camera.front_door
+      notify_device: 0074f5db113054eabb321eaf79272025
+- id: '1672279412163'
+  alias: Handle Keystrokes
+  description: ''
+  trigger:
+  - platform: webhook
+    webhook_id: -507znab0PqR6ln1KSssOHbJT
+  condition: []
+  action:
+  - choose:
+    - conditions:
+      - condition: template
+        value_template: '{{ trigger.json[''key''] == ''ArrowRight'' }}'
+      sequence:
+      - service: remote.send_command
+        data:
+          device: livingroomtv
+          command: right
+        target:
+          entity_id: remote.ir_remote_remote
+    - conditions:
+      - condition: template
+        value_template: '{{ trigger.json[''key''] == ''ArrowUp'' }}'
+      sequence:
+      - service: remote.send_command
+        data:
+          device: livingroomtv
+          command: up
+        target:
+          entity_id: remote.ir_remote_remote
+    - conditions:
+      - condition: template
+        value_template: '{{ trigger.json[''key''] == ''ArrowDown'' }}'
+      sequence:
+      - service: remote.send_command
+        data:
+          device: livingroomtv
+          command: down
+        target:
+          entity_id: remote.ir_remote_remote
+    - conditions:
+      - condition: template
+        value_template: '{{ trigger.json[''key''] == ''ArrowLeft'' }}'
+      sequence:
+      - service: remote.send_command
+        data:
+          device: livingroomtv
+          command: left
+        target:
+          entity_id: remote.ir_remote_remote
+    - conditions:
+      - condition: template
+        value_template: '{{ trigger.json[''key''] == ''Enter'' }}'
+      sequence:
+      - service: remote.send_command
+        data:
+          device: livingroomtv
+          command: select
+        target:
+          entity_id: remote.ir_remote_remote
+    - conditions:
+      - condition: template
+        value_template: '{{ trigger.json[''key''] == ''≤'' }}'
+      sequence:
+      - service: androidtv.adb_command
+        data:
+          command: BACK
+        target:
+          entity_id: media_player.living_room_ccwgtv
+    - conditions:
+      - condition: template
+        value_template: '{{ trigger.json[''key''] == ''–'' }}'
+      sequence:
+      - service: remote.send_command
+        data:
+          device: livingroomtv
+          command: volumedown
+        target:
+          entity_id: remote.ir_remote_remote
+    - conditions:
+      - condition: template
+        value_template: '{{ trigger.json[''key''] == ''≠'' }}'
+      sequence:
+      - service: remote.send_command
+        data:
+          device: livingroomtv
+          command: volumeup
+        target:
+          entity_id: remote.ir_remote_remote
   mode: single

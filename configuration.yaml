@@ -15,7 +15,7 @@ homeassistant:
 http:
   use_x_forwarded_for: true
   trusted_proxies:
-    - 172.27.0.0/24
+    - 172.16.144.0/20
 
 # https://www.home-assistant.io/integrations/frontend/
 frontend:
@@ -24,11 +24,11 @@ frontend:
 sensor:
   - platform: time_date
     display_options:
-      - 'time'
-      - 'date'
-      - 'date_time'
-      - 'date_time_utc'
-      - 'date_time_iso'
+      - "time"
+      - "date"
+      - "date_time"
+      - "date_time_utc"
+      - "date_time_iso"
   - platform: systemmonitor
     resources:
       - type: disk_use_percent
@@ -51,8 +51,14 @@ sensor:
     device_id: !secret amit_phone_ble_id
     state_topic: "espresense/rooms"
     timeout: 5
-    away_timeout: 120
-      
+    away_timeout: 10
+  - platform: google_fit
+    name: Google Fit
+    client_id: !secret fit_google_client_id
+    client_secret: !secret fit_google_client_secret
+  - platform: college_football
+    team_id: "TEX"
+    name: Texas Longhorns
 
 # https://www.home-assistant.io/integrations/recorder/
 recorder:
@@ -102,7 +108,7 @@ tts:
   - platform: amazon_polly
     aws_access_key_id: !secret aws_access_key_id
     aws_secret_access_key: !secret aws_secret_access_key
-    text_type: ssml 
+    text_type: ssml
     voice: Mia
     cache: True
     engine: neural
@@ -152,11 +158,6 @@ rainbird:
       trigger_time:
         minutes: 1
 
-# https://www.home-assistant.io/integrations/calendar.google/
-google:
-  client_id: !secret calendar_google_client_id
-  client_secret: !secret calendar_google_client_secret
-
 # https://www.home-assistant.io/integrations/google_assistant/
 google_assistant:
   project_id: !secret googlet_assistant_project_id
@@ -172,17 +173,22 @@ input_select:
     name: Source
     icon: mdi:music-box-multiple
     options: # don't change
-    - "Playlist Radio"
-    - "Playlist"
+      - "Playlist Radio"
+      - "Playlist"
 
   ytube_music_player_speakers:
     name: Speakers
     icon: mdi:speaker
     options: # don't change
-    - "loading"
+      - "loading"
 
   ytube_music_player_playlist:
     name: Playlist
     icon: mdi:playlist-music
     options: # don't change
-    - "loading"
+      - "loading"
+
+logger:
+  default: critical
+  logs:
+    custom_components.college_football: debug
