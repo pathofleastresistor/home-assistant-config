@@ -1,0 +1,8 @@
+'1665854165239':
+  alias: New Script
+  sequence:
+  - service: input_datetime.set_datetime
+    data:
+      datetime: '{{ now() }}'
+    target:
+      entity_id: input_datetime.washing_machine
