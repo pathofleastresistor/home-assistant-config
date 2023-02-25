@@ -263,3 +263,69 @@
       - 0.388
       state: 'on'
   icon: mdi:chair-rolling
+- id: '1655083798716'
+  name: Evening Colors
+  entities:
+    light.gym:
+      min_mireds: 154
+      max_mireds: 554
+      effect_list:
+      - sun match
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 255
+      hs_color:
+      - 237.153
+      - 81.569
+      rgb_color:
+      - 46
+      - 56
+      - 255
+      xy_color:
+      - 0.148
+      - 0.065
+      entity_id:
+      - light.gym_1
+      - light.gym_2
+      - light.gym_3
+      icon: mdi:lightbulb-group
+      friendly_name: Gym
+      supported_features: 4
+      state: 'on'
+    light.upstair_s_office:
+      min_mireds: 154
+      max_mireds: 554
+      effect_list:
+      - sun match
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 255
+      hs_color:
+      - 245.217
+      - 78.588
+      rgb_color:
+      - 72
+      - 54
+      - 255
+      xy_color:
+      - 0.163
+      - 0.07
+      entity_id:
+      - light.amit_office_1
+      - light.amit_office_2
+      - light.amit_office_3
+      - light.camera
+      - light.camera_2
+      icon: mdi:lightbulb-group
+      friendly_name: Upstair's Office
+      supported_features: 4
+      state: 'on'
+  metadata:
+    light.upstair_s_office:
+      entity_only: true
+    light.gym:
+      entity_only: true
