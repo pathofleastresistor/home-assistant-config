@@ -304,6 +304,10 @@
   trigger:
   - platform: webhook
     webhook_id: -507znab0PqR6ln1KSssOHbJT
+    allowed_methods:
+    - POST
+    - PUT
+    local_only: false
   condition: []
   action:
   - choose:
@@ -386,4 +390,50 @@
           command: volumeup
         target:
           entity_id: remote.ir_remote_remote
+  mode: single
+- id: '1681591143284'
+  alias: Birthday Reminder
+  description: ''
+  trigger:
+  - platform: calendar
+    event: start
+    offset: -0:0:0
+    entity_id: calendar.birthdays
+  condition: []
+  action:
+  - service: notify.mobile_app_pixel_7_pro
+    data:
+      message: '{{ trigger.calendar_event.summary }} is today!'
+      title: Birthday Reminder
+      data:
+        ttl: 0
+        priority: high
+  mode: single
+- id: '1683383421044'
+  alias: Workout Reminder
+  description: ''
+  trigger:
+  - platform: sun
+    event: sunrise
+    offset: 0
+  condition:
+  - condition: template
+    value_template: '{{ states.activity_manager | selectattr(''attributes.category'',
+      ''equalto'', ''Workout'') | map(attribute=''state'') | map(''as_datetime'')
+      | reject(">", now()) | list | count > 0 }}'
+  action:
+  - service: notify.mobile_app_pixel_7_pro
+    data:
+      title: 'Workout reminder{% if (states.activity_manager | selectattr(''attributes.category'',
+        ''equalto'', ''Workout'') | map(attribute=''state'') | map(''as_datetime'')
+        | reject(">", now()) | list | count > 1)%}s{% endif %} '
+      message: '{{ "Remember to stay healthy and go do: " }} {%- set new_line = joiner("<br
+        />") %} <br /> {%- for activity in states.activity_manager -%} {%- if activity.state|as_datetime
+        < now() and activity.attributes.category=="Workout"  -%} {{ new_line() }}{{
+        " - "}}{{  activity.name }} {%- endif -%} {%- endfor %}'
+      data:
+        priority: high
+        ttl: 0
+        importance: high
+        notification_icon: mdi:dumbbell
   mode: single
