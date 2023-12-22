@@ -329,3 +329,297 @@
       entity_only: true
     light.gym:
       entity_only: true
+- id: '1702858191461'
+  name: C-Stand - Pacific
+  entities:
+    light.photo_light_1:
+      min_color_temp_kelvin: 2000
+      max_color_temp_kelvin: 6535
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - blink
+      - breathe
+      - okay
+      - channel_change
+      - candle
+      - fireplace
+      - colorloop
+      - finish_effect
+      - stop_effect
+      - stop_hue_effect
+      supported_color_modes:
+      - color_temp
+      - xy
+      color_mode: xy
+      brightness: 204
+      color_temp_kelvin:
+      color_temp:
+      hs_color:
+      - 219.048
+      - 49.412
+      rgb_color:
+      - 129
+      - 173
+      - 255
+      xy_color:
+      - 0.208
+      - 0.217
+      effect:
+      color:
+        x: 0.208
+        y: 0.217
+      linkquality: 255
+      power_on_behavior: previous
+      update:
+        installed_version: 16785162
+        latest_version: 16785162
+        state: idle
+      update_available: false
+      friendly_name: Photo Light 1
+      supported_features: 44
+      state: 'on'
+    light.photo_light_2:
+      min_color_temp_kelvin: 2000
+      max_color_temp_kelvin: 6535
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - blink
+      - breathe
+      - okay
+      - channel_change
+      - candle
+      - fireplace
+      - colorloop
+      - finish_effect
+      - stop_effect
+      - stop_hue_effect
+      supported_color_modes:
+      - color_temp
+      - xy
+      color_mode: xy
+      brightness: 204
+      color_temp_kelvin:
+      color_temp:
+      hs_color:
+      - 9.231
+      - 66.275
+      rgb_color:
+      - 255
+      - 112
+      - 86
+      xy_color:
+      - 0.589
+      - 0.329
+      effect:
+      color:
+        x: 0.589
+        y: 0.329
+      linkquality: 254
+      power_on_behavior:
+      update:
+        installed_version: 16785162
+        latest_version: 16785162
+        state: idle
+      update_available: false
+      friendly_name: Photo Light 2
+      supported_features: 44
+      state: 'on'
+  metadata: {}
+- id: '1702858256970'
+  name: C-Stand - Cool
+  entities:
+    light.photo_light_1:
+      min_color_temp_kelvin: 2000
+      max_color_temp_kelvin: 6535
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - blink
+      - breathe
+      - okay
+      - channel_change
+      - candle
+      - fireplace
+      - colorloop
+      - finish_effect
+      - stop_effect
+      - stop_hue_effect
+      supported_color_modes:
+      - color_temp
+      - xy
+      color_mode: color_temp
+      brightness: 255
+      color_temp_kelvin: 5813
+      color_temp: 172
+      hs_color:
+      - 29.28
+      - 9.192
+      rgb_color:
+      - 255
+      - 242
+      - 231
+      xy_color:
+      - 0.345
+      - 0.339
+      effect:
+      color:
+        x: 0.3258
+        y: 0.3351
+      linkquality: 255
+      power_on_behavior: previous
+      update:
+        installed_version: 16785162
+        latest_version: 16785162
+        state: idle
+      update_available: false
+      friendly_name: Photo Light 1
+      supported_features: 44
+      state: 'on'
+    light.photo_light_2:
+      min_color_temp_kelvin: 2000
+      max_color_temp_kelvin: 6535
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - blink
+      - breathe
+      - okay
+      - channel_change
+      - candle
+      - fireplace
+      - colorloop
+      - finish_effect
+      - stop_effect
+      - stop_hue_effect
+      supported_color_modes:
+      - color_temp
+      - xy
+      color_mode: color_temp
+      brightness: 255
+      color_temp_kelvin: 5813
+      color_temp: 172
+      hs_color:
+      - 29.28
+      - 9.192
+      rgb_color:
+      - 255
+      - 242
+      - 231
+      xy_color:
+      - 0.345
+      - 0.339
+      effect:
+      color:
+        x: 0.3258
+        y: 0.3351
+      linkquality: 255
+      power_on_behavior:
+      update:
+        installed_version: 16785162
+        latest_version: 16785162
+        state: idle
+      update_available: false
+      friendly_name: Photo Light 2
+      supported_features: 44
+      state: 'on'
+  metadata: {}
+- id: '1702858285750'
+  name: C-Stand - Warm
+  entities:
+    light.photo_light_1:
+      min_color_temp_kelvin: 2000
+      max_color_temp_kelvin: 6535
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - blink
+      - breathe
+      - okay
+      - channel_change
+      - candle
+      - fireplace
+      - colorloop
+      - finish_effect
+      - stop_effect
+      - stop_hue_effect
+      supported_color_modes:
+      - color_temp
+      - xy
+      color_mode: color_temp
+      brightness: 255
+      color_temp_kelvin: 2512
+      color_temp: 398
+      hs_color:
+      - 28.843
+      - 72.089
+      rgb_color:
+      - 255
+      - 159
+      - 71
+      xy_color:
+      - 0.546
+      - 0.389
+      effect:
+      color:
+        x: 0.4761
+        y: 0.4136
+      linkquality: 255
+      power_on_behavior: previous
+      update:
+        installed_version: 16785162
+        latest_version: 16785162
+        state: idle
+      update_available: false
+      friendly_name: Photo Light 1
+      supported_features: 44
+      state: 'on'
+    light.photo_light_2:
+      min_color_temp_kelvin: 2000
+      max_color_temp_kelvin: 6535
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - blink
+      - breathe
+      - okay
+      - channel_change
+      - candle
+      - fireplace
+      - colorloop
+      - finish_effect
+      - stop_effect
+      - stop_hue_effect
+      supported_color_modes:
+      - color_temp
+      - xy
+      color_mode: color_temp
+      brightness: 255
+      color_temp_kelvin: 2457
+      color_temp: 407
+      hs_color:
+      - 28.99
+      - 74.102
+      rgb_color:
+      - 255
+      - 157
+      - 66
+      xy_color:
+      - 0.551
+      - 0.389
+      effect:
+      color:
+        x: 0.4815
+        y: 0.4142
+      linkquality: 255
+      power_on_behavior:
+      update:
+        installed_version: 16785162
+        latest_version: 16785162
+        state: idle
+      update_available: false
+      friendly_name: Photo Light 2
+      supported_features: 44
+      state: 'on'
+  metadata: {}
