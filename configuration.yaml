@@ -97,39 +97,3 @@ recorder:
 
 # https://www.home-assistant.io/integrations/sun/
 sun:
-
-# Text to speech
-tts:
-  - platform: google_translate
-
-# https://www.home-assistant.io/integrations/rainbird/
-rainbird:
-  host: 192.168.50.73
-  password: !secret rainbird_password
-  trigger_time: 10
-  zones:
-    1:
-      friendly_name: Front Grass
-      trigger_time:
-        minutes: 1
-    2:
-      friendly_name: Front Mulch
-      trigger_time:
-        minutes: 1
-    3:
-      friendly_name: Back Left
-      trigger_time:
-        minutes: 1
-    4:
-      friendly_name: Back Right
-      trigger_time:
-        minutes: 1
-
-# https://www.home-assistant.io/integrations/google_assistant/
-google_assistant:
-  project_id: !secret googlet_assistant_project_id
-  service_account: !include home-assistant.json
-  report_state: true
-  exposed_domains:
-    - switch
-    - light
