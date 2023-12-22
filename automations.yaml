@@ -1,69 +1,87 @@
 - id: '1644549022540'
-  alias: Home - Evening (Late)
+  alias: Home - Action - Evening (Late)
   description: ''
   trigger:
   - platform: time
     at: '22:00:00'
   condition: []
   action:
-  - service: alarm_control_panel.alarm_arm_home
-    data: {}
-    target:
+  - alias: Actions to do if someone is home
+    if:
+    - condition: template
+      value_template: '{{ states("input_select.home_occupancy") in ["Home", "Guest"]
+        }}'
+    then:
+    - service: alarm_control_panel.alarm_arm_home
+      data: {}
+      target:
+        entity_id: alarm_control_panel.home_alarm_control_panel_alarm_control_panel
+    - service: climate.set_preset_mode
+      target:
+        entity_id: climate.living_room
+      data:
+        preset_mode: Sleep
+  - alias: Actions to do if no one is home
+    if:
+    - condition: template
+      value_template: '{{ states("input_select.home_occupancy") in ["Away"] }}'
+    then:
+    - service: alarm_control_panel.alarm_arm_away
+      data: {}
+      target:
+        entity_id: alarm_control_panel.home_alarm_control_panel_alarm_control_panel
+    - condition: state
       entity_id: alarm_control_panel.home_alarm_control_panel_alarm_control_panel
+      state: disarmed
+    - service: alarm_control_panel.alarm_arm_away
+      data: {}
+      target:
+        entity_id: alarm_control_panel.home_alarm_control_panel_alarm_control_panel
   mode: single
 - id: '1644569882133'
-  alias: Home - Morning (Early)
+  alias: Home - Action - Morning (Early)
   description: ''
   trigger:
   - platform: sun
     event: sunrise
     offset: '-30'
+    alias: 30 min before sunrise
   condition: []
   action:
-  - service: alarm_control_panel.alarm_disarm
-    data: {}
-    target:
-      entity_id: alarm_control_panel.home_alarm_control_panel_alarm_control_panel
-  - service: light.turn_on
-    data:
-      transition: 10
-      brightness_pct: 15
-    target:
-      entity_id: light.main_floor
-    enabled: false
-  - service: cover.open_cover
-    data: {}
-    target:
-      entity_id: cover.living_room_shades
-    enabled: false
-  mode: single
-- id: '1644838194497'
-  alias: Master Bedroom - Motion Lights
-  description: ''
-  trigger:
-  - platform: mqtt
-    topic: zigbee2mqtt/Master Bedroom Motion Sensor
-    payload: 'true'
-    value_template: '{{ value_json.occupancy }}'
-  condition: []
-  action:
-  - service: light.turn_on
-    data:
-      brightness_pct: 20
-    target:
-      entity_id: light.master_bedroom_accent_lights
-  - delay:
-      hours: 0
-      minutes: 0
-      seconds: 10
-      milliseconds: 0
-  - service: light.turn_off
-    data: {}
-    target:
-      entity_id: light.master_bedroom_accent_lights
+  - alias: Actions to do if someone is home
+    if:
+    - condition: template
+      value_template: '{{ states("input_select.home_occupancy") in ["Home", "Guest"]
+        }}'
+      alias: Check to see if home is occupied
+    then:
+    - service: cover.set_cover_position
+      data:
+        position: 50
+      target:
+        entity_id: cover.living_room_shades
+      alias: Open the living room shades
+    - service: alarm_control_panel.alarm_disarm
+      data: {}
+      target:
+        entity_id: alarm_control_panel.home_alarm_control_panel_alarm_control_panel
+      alias: Turn off the alarm
+    - service: ecobee.resume_program
+      data:
+        resume_all: true
+        entity_id: climate.living_room
+  - alias: Actions to do if no one is home
+    if:
+    - condition: template
+      value_template: '{{ states("input_select.home_occupancy") in ["Away"] }}'
+    then:
+    - service: cover.close_cover
+      data: {}
+      target:
+        entity_id: cover.living_room_shades
   mode: single
 - id: '1644905742835'
-  alias: Gym - Lights Button
+  alias: MQTT - Gym - Lights Button
   description: ''
   trigger:
   - platform: mqtt
@@ -78,7 +96,7 @@
       entity_id: light.gym
   mode: single
 - id: '1646099971103'
-  alias: Amit's Office - Lights Button
+  alias: MQTT - Amit's Office - Lights Button
   description: ''
   trigger:
   - platform: mqtt
@@ -93,20 +111,27 @@
       entity_id: light.upstair_s_office
   mode: single
 - id: '1648092253420'
-  alias: Home - Evening (Early)
+  alias: Home - Action -  Evening (Early)
   description: ''
   trigger:
   - platform: sun
     event: sunset
   condition: []
   action:
-  - service: cover.close_cover
-    data: {}
-    target:
-      entity_id: cover.living_room_shades
+  - alias: Actions to do if someone is home
+    if:
+    - condition: template
+      value_template: '{{ states("input_select.home_occupancy") in ["Home", "Guest"]
+        }}'
+    then:
+    - service: cover.close_cover
+      data: {}
+      target:
+        entity_id: cover.living_room_shades
   mode: single
 - id: '1648433962952'
-  alias: Master Bathroom - Lights Switch
+  alias: MQTT - Master Bathroom - Lights Switch
+  description: ''
   use_blueprint:
     path: jerelabs/zwave-js-inovelli-lzw31-sn-red-series-dimmer.yaml
     input:
@@ -140,28 +165,6 @@
         target:
           entity_id: scene.master_bathroom_relax
         metadata: {}
-- id: '1649010072406'
-  alias: Front Door - Motion
-  description: ''
-  trigger:
-  - platform: state
-    entity_id: binary_sensor.front_door_motion
-    from: 'off'
-    to: 'on'
-  condition: []
-  action:
-  - service: light.turn_on
-    data:
-      brightness: 255
-    target:
-      entity_id: light.front_porch_overhead_light
-  - wait_for_trigger: []
-    timeout: '300'
-  - service: light.turn_off
-    data: {}
-    target:
-      entity_id: light.front_porch_overhead_light
-  mode: single
 - id: '1649170382940'
   alias: Laundry - Washing Machine Timer
   description: Start the timer for how long the washing machine is running.
@@ -184,6 +187,10 @@
           datetime: '{{ now() }}'
         target:
           entity_id: input_datetime.washing_machine
+      - service: switch.turn_on
+        data: {}
+        target:
+          entity_id: switch.washing_machine_plug
     - conditions:
       - condition: template
         value_template: '{{ trigger.payload_json.action == "double" }}'
@@ -194,30 +201,8 @@
           entity_id: input_boolean.washing_machine
     default: []
   mode: single
-- id: '1650005656504'
-  alias: Home Manager - Notify
-  description: ''
-  trigger:
-  - platform: time_pattern
-    minutes: /1
-  condition: []
-  action:
-  - event: HOME_MANAGER_NOTIFY
-    event_data: {}
-  mode: single
-- id: '1650075028373'
-  alias: Front Door - Doorbell ding
-  description: ''
-  trigger:
-  - platform: state
-    entity_id: binary_sensor.front_door_ding
-    from: 'off'
-    to: 'on'
-  condition: []
-  action: []
-  mode: single
 - id: '1651621760847'
-  alias: Stairway - Motion Sensor
+  alias: MQTT - Stairway - Motion Sensor
   description: ''
   trigger:
   - platform: mqtt
@@ -247,7 +232,7 @@
       entity_id: scene.stairway_current
   mode: single
 - id: '1651640832411'
-  alias: Master Bedroom - Nightstand Button
+  alias: MQTT - Master Bedroom - Nightstand Button
   description: ''
   use_blueprint:
     path: Drafted/aqara-buttons-all-in-one-zigbee2mqtt.yaml
@@ -268,128 +253,6 @@
   action:
   - service: backup.create
     data: {}
-  mode: single
-- id: '1654466376917'
-  alias: Laundry - Washing Machine Notify
-  description: ''
-  trigger:
-  - platform: numeric_state
-    entity_id: sensor.washing_machine_plug_power
-    for:
-      hours: 0
-      minutes: 2
-      seconds: 0
-    below: '5'
-    attribute: power
-  condition: []
-  action:
-  - service: tts.google_translate_say
-    data:
-      entity_id: media_player.home_speakers
-      message: The laundry is done.
-  mode: single
-- id: '1654892579377'
-  alias: Doorbell - Notify Google and send camera snapshot to app
-  description: ''
-  use_blueprint:
-    path: seamus65/doorbell-notify-google-and-send-camera-snapshot-to-app.yaml
-    input:
-      doorbell: binary_sensor.front_door_ding
-      google_device: media_player.home_speakers
-      camera: camera.front_door
-      notify_device: 0074f5db113054eabb321eaf79272025
-- id: '1672279412163'
-  alias: Handle Keystrokes
-  description: ''
-  trigger:
-  - platform: webhook
-    webhook_id: -507znab0PqR6ln1KSssOHbJT
-    allowed_methods:
-    - POST
-    - PUT
-    local_only: false
-  condition: []
-  action:
-  - choose:
-    - conditions:
-      - condition: template
-        value_template: '{{ trigger.json[''key''] == ''ArrowRight'' }}'
-      sequence:
-      - service: remote.send_command
-        data:
-          device: livingroomtv
-          command: right
-        target:
-          entity_id: remote.ir_remote_remote
-    - conditions:
-      - condition: template
-        value_template: '{{ trigger.json[''key''] == ''ArrowUp'' }}'
-      sequence:
-      - service: remote.send_command
-        data:
-          device: livingroomtv
-          command: up
-        target:
-          entity_id: remote.ir_remote_remote
-    - conditions:
-      - condition: template
-        value_template: '{{ trigger.json[''key''] == ''ArrowDown'' }}'
-      sequence:
-      - service: remote.send_command
-        data:
-          device: livingroomtv
-          command: down
-        target:
-          entity_id: remote.ir_remote_remote
-    - conditions:
-      - condition: template
-        value_template: '{{ trigger.json[''key''] == ''ArrowLeft'' }}'
-      sequence:
-      - service: remote.send_command
-        data:
-          device: livingroomtv
-          command: left
-        target:
-          entity_id: remote.ir_remote_remote
-    - conditions:
-      - condition: template
-        value_template: '{{ trigger.json[''key''] == ''Enter'' }}'
-      sequence:
-      - service: remote.send_command
-        data:
-          device: livingroomtv
-          command: select
-        target:
-          entity_id: remote.ir_remote_remote
-    - conditions:
-      - condition: template
-        value_template: '{{ trigger.json[''key''] == ''≤'' }}'
-      sequence:
-      - service: androidtv.adb_command
-        data:
-          command: BACK
-        target:
-          entity_id: media_player.living_room_ccwgtv
-    - conditions:
-      - condition: template
-        value_template: '{{ trigger.json[''key''] == ''–'' }}'
-      sequence:
-      - service: remote.send_command
-        data:
-          device: livingroomtv
-          command: volumedown
-        target:
-          entity_id: remote.ir_remote_remote
-    - conditions:
-      - condition: template
-        value_template: '{{ trigger.json[''key''] == ''≠'' }}'
-      sequence:
-      - service: remote.send_command
-        data:
-          device: livingroomtv
-          command: volumeup
-        target:
-          entity_id: remote.ir_remote_remote
   mode: single
 - id: '1681591143284'
   alias: Birthday Reminder
@@ -436,4 +299,131 @@
         ttl: 0
         importance: high
         notification_icon: mdi:dumbbell
+  mode: single
+- id: '1701032576587'
+  alias: Home - Change Mode to Away
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - input_select.home_occupancy
+    to: Away
+    from: Home
+  - platform: state
+    entity_id:
+    - input_select.home_occupancy
+    to: Away
+    from: Guest
+  condition: []
+  action:
+  - service: tts.cloud_say
+    data:
+      cache: false
+      entity_id: media_player.home_speakers
+      message: The home is going into away mode. The lights will be turned off, the
+        alarm set to away, and the thermostat set to away.
+    alias: Announcement
+  - service: light.turn_off
+    data:
+      entity_id: all
+    alias: Turn off all the lights
+  - service: climate.set_preset_mode
+    data:
+      preset_mode: Away
+    target:
+      entity_id: climate.living_room
+    alias: Set thermostate to Away
+  - service: alarm_control_panel.alarm_arm_away
+    data: {}
+    target:
+      entity_id: alarm_control_panel.home_alarm_control_panel_alarm_control_panel
+    alias: Arm alarm (away mode)
+  - service: cover.close_cover
+    data: {}
+    target:
+      entity_id:
+      - cover.living_room_shades
+      - cover.media_room_shade_bottom_up
+      - cover.media_room_shades_top_down
+    alias: Close shades
+  mode: single
+- id: '1701032790455'
+  alias: Home - Change Mode to Home/Guest
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - input_select.home_occupancy
+    to: Home
+    from: Away
+  - platform: state
+    entity_id:
+    - input_select.home_occupancy
+    to: Guest
+    from: Away
+  condition: []
+  action:
+  - service: tts.cloud_say
+    data:
+      cache: false
+      entity_id: media_player.home_speakers
+      message: The home is coming back to home mode. Some lights will be turned on,
+        the alarm set to home, and the thermostat set to home.
+    alias: Announcement
+  - service: ecobee.resume_program
+    data:
+      resume_all: true
+      entity_id: climate.living_room
+  - if:
+    - condition: not
+      conditions:
+      - condition: state
+        entity_id: alarm_control_panel.home_alarm_control_panel_alarm_control_panel
+        state: disarmed
+    then:
+    - service: alarm_control_panel.alarm_disarm
+      data: {}
+      target:
+        entity_id: alarm_control_panel.home_alarm_control_panel_alarm_control_panel
+  - if:
+    - condition: sun
+      before: sunset
+      after: sunrise
+    then:
+    - service: cover.set_cover_position
+      data:
+        position: 50
+      target:
+        entity_id: cover.living_room_shades
+    alias: Daytime Actions
+  - if:
+    - condition: sun
+      before: sunrise
+      after: sunset
+    then:
+    - service: light.turn_on
+      data: {}
+      target:
+        entity_id:
+        - light.front_porch_overhead_light
+        - light.front_foyer_main_lights
+        - light.living_room_main_lights
+        - light.breakfast_room_main_lights
+        - light.kitchen
+    alias: Night Time Actions
+  mode: single
+- id: '1702273468253'
+  alias: YouTube Search
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - input_button.youtube_search
+  condition: []
+  action:
+  - service: ytube_music_player.search
+    data:
+      limit: 20
+      entity_id: media_player.youtube_living_room_display
+      query: '{{ states(''input_text.youtube_search'') }}'
   mode: single
