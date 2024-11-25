@@ -623,3 +623,48 @@
       supported_features: 44
       state: 'on'
   metadata: {}
+- id: '1709171402831'
+  name: Therapy
+  entities:
+    light.breakfast_room_main_lights:
+      supported_color_modes:
+      - brightness
+      color_mode: brightness
+      brightness: 53
+      device_id: '10'
+      zone_id: '6'
+      friendly_name: Breakfast Room Main Lights
+      supported_features: 32
+      state: 'on'
+    light.kitchen_main_lights:
+      supported_color_modes:
+      - brightness
+      color_mode:
+      brightness:
+      device_id: '16'
+      zone_id: '12'
+      friendly_name: Kitchen Main Lights
+      supported_features: 32
+      state: 'off'
+    light.kitchen_sink_light:
+      supported_color_modes:
+      - brightness
+      color_mode:
+      brightness:
+      device_id: '27'
+      zone_id: '17'
+      friendly_name: Kitchen Sink Light
+      supported_features: 32
+      state: 'off'
+    light.living_room_main_lights:
+      supported_color_modes:
+      - brightness
+      color_mode: brightness
+      brightness: 255
+      device_id: '2'
+      zone_id: '1'
+      friendly_name: Living Room Main Lights
+      supported_features: 32
+      state: 'on'
+  icon: mdi:doctor
+  metadata: {}

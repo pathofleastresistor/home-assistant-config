@@ -41,13 +41,13 @@
 - id: '1644569882133'
   alias: Home - Action - Morning (Early)
   description: ''
-  trigger:
-  - platform: sun
-    event: sunrise
+  triggers:
+  - event: sunrise
     offset: '-30'
     alias: 30 min before sunrise
-  condition: []
-  action:
+    trigger: sun
+  conditions: []
+  actions:
   - alias: Actions to do if someone is home
     if:
     - condition: template
@@ -55,30 +55,26 @@
         }}'
       alias: Check to see if home is occupied
     then:
-    - service: cover.set_cover_position
+    - alias: Open the living room shades
       data:
-        position: 50
+        position: 75
       target:
         entity_id: cover.living_room_shades
-      alias: Open the living room shades
-    - service: alarm_control_panel.alarm_disarm
-      data: {}
+      action: cover.set_cover_position
+    - data: {}
       target:
         entity_id: alarm_control_panel.home_alarm_control_panel_alarm_control_panel
       alias: Turn off the alarm
-    - service: ecobee.resume_program
-      data:
-        resume_all: true
-        entity_id: climate.living_room
+      action: alarm_control_panel.alarm_disarm
   - alias: Actions to do if no one is home
     if:
     - condition: template
       value_template: '{{ states("input_select.home_occupancy") in ["Away"] }}'
     then:
-    - service: cover.close_cover
-      data: {}
+    - data: {}
       target:
         entity_id: cover.living_room_shades
+      action: cover.close_cover
   mode: single
 - id: '1644905742835'
   alias: MQTT - Gym - Lights Button
@@ -98,17 +94,18 @@
 - id: '1646099971103'
   alias: MQTT - Amit's Office - Lights Button
   description: ''
-  trigger:
-  - platform: mqtt
-    topic: zigbee2mqtt/Amit's Office Button
+  triggers:
+  - topic: zigbee2mqtt/Amit's Office Button
     payload: press
     value_template: '{{ value_json.action }}'
-  condition: []
-  action:
-  - service: light.toggle
-    data: {}
+    trigger: mqtt
+  conditions: []
+  actions:
+  - data:
+      brightness_pct: 68
+    action: light.toggle
     target:
-      entity_id: light.upstair_s_office
+      entity_id: light.upstair_s_office_main
   mode: single
 - id: '1648092253420'
   alias: Home - Action -  Evening (Early)
@@ -135,36 +132,36 @@
   use_blueprint:
     path: jerelabs/zwave-js-inovelli-lzw31-sn-red-series-dimmer.yaml
     input:
-      inovelli_switch: 38f47cfb5deb31095d26375922c49ae8
+      inovelli_switch: 89c318cf0f46bdd5b44b6770995de4ab
       button_a:
-      - service: light.turn_on
-        data:
+      - data:
           brightness_pct: 100
           kelvin: 2600
         target:
           entity_id: light.master_bathroom_lights
-      - service: switch.turn_on
-        data: {}
+        action: light.turn_on
+      - data: {}
         target:
           entity_id:
           - switch.master_bath_fan
           - switch.master_bathroom_tub_switch
+        action: switch.turn_on
       button_b:
-      - service: light.turn_off
-        data: {}
+      - data: {}
         target:
           entity_id: light.master_bathroom_lights
-      - service: switch.turn_off
-        data: {}
+        action: light.turn_off
+      - data: {}
         target:
           entity_id:
           - switch.master_bath_fan
           - switch.master_bathroom_tub_switch
+        action: switch.turn_off
       button_a2:
-      - service: scene.turn_on
-        target:
+      - target:
           entity_id: scene.master_bathroom_relax
         metadata: {}
+        action: scene.turn_on
 - id: '1649170382940'
   alias: Laundry - Washing Machine Timer
   description: Start the timer for how long the washing machine is running.
@@ -173,32 +170,46 @@
     topic: zigbee2mqtt/Washing Machine Button
   condition: []
   action:
+  - if:
+    - condition: device
+      type: is_off
+      device_id: 7bc4c4c62d09fabc0b4ed265b4c9d80e
+      entity_id: 4f8b0a01b44555e8347e7b92cdd9abe1
+      domain: switch
+    then:
+    - type: turn_on
+      device_id: 7bc4c4c62d09fabc0b4ed265b4c9d80e
+      entity_id: 4f8b0a01b44555e8347e7b92cdd9abe1
+      domain: switch
   - choose:
     - conditions:
       - condition: template
         value_template: '{{ trigger.payload_json.action == "single" }}'
+        alias: Test if a single press
       sequence:
       - service: input_boolean.turn_on
         data: {}
         target:
           entity_id: input_boolean.washing_machine
+        alias: Turn on Washing Machine tracker
       - service: input_datetime.set_datetime
         data:
           datetime: '{{ now() }}'
         target:
           entity_id: input_datetime.washing_machine
-      - service: switch.turn_on
-        data: {}
-        target:
-          entity_id: switch.washing_machine_plug
+        alias: Set timer to now()
+      alias: Single press
     - conditions:
       - condition: template
         value_template: '{{ trigger.payload_json.action == "double" }}'
+        alias: Test if a double press
       sequence:
       - service: input_boolean.turn_off
         data: {}
         target:
           entity_id: input_boolean.washing_machine
+        alias: Turn off Washing Machine tracker
+      alias: Double press
     default: []
   mode: single
 - id: '1651621760847'
@@ -264,13 +275,13 @@
     entity_id: calendar.birthdays
   condition: []
   action:
-  - service: notify.mobile_app_pixel_7_pro
-    data:
+  - data:
       message: '{{ trigger.calendar_event.summary }} is today!'
       title: Birthday Reminder
       data:
         ttl: 0
         priority: high
+    action: notify.mobile_app_pixel_8_pro
   mode: single
 - id: '1683383421044'
   alias: Workout Reminder
@@ -281,24 +292,27 @@
     offset: 0
   condition:
   - condition: template
-    value_template: '{{ states.activity_manager | selectattr(''attributes.category'',
-      ''equalto'', ''Workout'') | map(attribute=''state'') | map(''as_datetime'')
-      | reject(">", now()) | list | count > 0 }}'
+    value_template: '{{ states.sensor | selectattr(''attributes.integration'', ''eq'',
+      ''activity_manager'') | selectattr(''attributes.category'', ''equalto'', ''Workout'')
+      | map(attribute=''state'') | map(''as_datetime'') | reject(">", now()) | list
+      | count > 0 }}'
   action:
-  - service: notify.mobile_app_pixel_7_pro
-    data:
-      title: 'Workout reminder{% if (states.activity_manager | selectattr(''attributes.category'',
-        ''equalto'', ''Workout'') | map(attribute=''state'') | map(''as_datetime'')
-        | reject(">", now()) | list | count > 1)%}s{% endif %} '
+  - data:
+      title: 'Workout reminder{% if (states.sensor | selectattr(''attributes.integration'',
+        ''equalto'', ''activity_manager'') | selectattr(''attributes.category'', ''equalto'',
+        ''Workout'') | map(attribute=''state'') | map(''as_datetime'') | reject(">",
+        now()) | list | count > 1)%}s{% endif %} '
       message: '{{ "Remember to stay healthy and go do: " }} {%- set new_line = joiner("<br
-        />") %} <br /> {%- for activity in states.activity_manager -%} {%- if activity.state|as_datetime
-        < now() and activity.attributes.category=="Workout"  -%} {{ new_line() }}{{
+        />") %} <br /> {%- for activity in states|selectattr(''attributes.integration'',
+        ''equalto'', ''activity_manager'') -%} {%- if activity.state|as_datetime <
+        now() and activity.attributes.category=="Workout"  -%} {{ new_line() }}{{
         " - "}}{{  activity.name }} {%- endif -%} {%- endfor %}'
       data:
         priority: high
         ttl: 0
         importance: high
         notification_icon: mdi:dumbbell
+    action: notify.mobile_app_pixel_8_pro
   mode: single
 - id: '1701032576587'
   alias: Home - Change Mode to Away
@@ -327,12 +341,12 @@
     data:
       entity_id: all
     alias: Turn off all the lights
-  - service: climate.set_preset_mode
+  - alias: Set thermostate to Away
+    service: climate.set_preset_mode
     data:
-      preset_mode: Away
+      preset_mode: away
     target:
       entity_id: climate.living_room
-    alias: Set thermostate to Away
   - service: alarm_control_panel.alarm_arm_away
     data: {}
     target:
@@ -412,18 +426,78 @@
         - light.kitchen
     alias: Night Time Actions
   mode: single
-- id: '1702273468253'
-  alias: YouTube Search
+- id: '1705164916050'
+  alias: Presence - Set to Away
   description: ''
   trigger:
-  - platform: state
-    entity_id:
-    - input_button.youtube_search
+  - platform: zone
+    entity_id: person.amit
+    zone: zone.home
+    event: leave
+  condition:
+  - condition: not
+    conditions:
+    - condition: state
+      entity_id: input_select.home_occupancy
+      state: Guest
+  action:
+  - service: input_select.select_option
+    target:
+      entity_id: input_select.home_occupancy
+    data:
+      option: Away
+  mode: single
+- id: '1705164977128'
+  alias: Presence - Set to Home
+  description: ''
+  trigger:
+  - platform: zone
+    entity_id: person.amit
+    zone: zone.home
+    event: enter
+  condition:
+  - condition: not
+    conditions:
+    - condition: state
+      entity_id: input_select.home_occupancy
+      state: Guest
+  action:
+  - service: input_select.select_option
+    target:
+      entity_id: input_select.home_occupancy
+    data:
+      option: Home
+  mode: single
+- id: '1714974254451'
+  alias: 'Home - Change Mode to Party '
+  description: ''
+  triggers:
+  - entity_id:
+    - input_select.home_occupancy
+    to: Party
+    trigger: state
+  conditions: []
+  actions:
+  - action: switch.turn_off
+    target:
+      entity_id:
+      - switch.adaptive_lighting_downstairs
+    data: {}
+  mode: single
+- id: '1723838859665'
+  alias: Main Bedroom Button
+  description: ''
+  trigger:
+  - platform: device
+    domain: mqtt
+    device_id: ec874541f6941bc2bf5b3c0f84c7e3ff
+    type: action
+    subtype: single
   condition: []
   action:
-  - service: ytube_music_player.search
-    data:
-      limit: 20
-      entity_id: media_player.youtube_living_room_display
-      query: '{{ states(''input_text.youtube_search'') }}'
+  - action: light.toggle
+    metadata: {}
+    data: {}
+    target:
+      entity_id: light.master_bedroom_nightstands
   mode: single

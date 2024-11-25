@@ -1,8 +1,115 @@
-'1665854165239':
-  alias: New Script
+ping_main_bathroom_switch:
+  alias: Ping Main Bathroom Switch
   sequence:
-  - service: input_datetime.set_datetime
-    data:
-      datetime: '{{ now() }}'
+  - service: button.press
+    metadata: {}
+    data: {}
     target:
-      entity_id: input_datetime.washing_machine
+      entity_id: button.node_10_ping
+  - service: zwave_js.ping
+    target:
+      entity_id: light.master_bath_switch
+    data: {}
+  mode: single
+  icon: mdi:gesture-tap-button
+switch_from_bose_to_tv_audio:
+  alias: Switch from Bose to TV audio
+  sequence:
+  - service: remote.send_command
+    metadata: {}
+    data:
+      num_repeats: 1
+      delay_secs: 0.4
+      hold_secs: 0
+      device: livingroomtv
+      command: settings
+    target:
+      device_id: 4a47caee5ce31baf382ec48451571326
+  - service: remote.send_command
+    metadata: {}
+    data:
+      num_repeats: 4
+      delay_secs: 0.4
+      hold_secs: 0
+      device: livingroomtv
+      command: down
+    target:
+      device_id: 4a47caee5ce31baf382ec48451571326
+  - service: remote.send_command
+    metadata: {}
+    data:
+      num_repeats: 1
+      delay_secs: 0.4
+      hold_secs: 0
+      device: livingroomtv
+      command: select
+    target:
+      device_id: 4a47caee5ce31baf382ec48451571326
+  - service: remote.send_command
+    metadata: {}
+    data:
+      num_repeats: 1
+      delay_secs: 0.4
+      hold_secs: 0
+      device: livingroomtv
+      command: left
+    target:
+      device_id: 4a47caee5ce31baf382ec48451571326
+  - service: remote.send_command
+    metadata: {}
+    data:
+      num_repeats: 1
+      delay_secs: 0.4
+      hold_secs: 0
+      device: livingroomtv
+      command: select
+    target:
+      device_id: 4a47caee5ce31baf382ec48451571326
+  - service: remote.send_command
+    metadata: {}
+    data:
+      num_repeats: 1
+      delay_secs: 0.4
+      hold_secs: 0
+      device: livingroomtv
+      command: volumeup
+    target:
+      device_id: 4a47caee5ce31baf382ec48451571326
+  - service: remote.send_command
+    metadata: {}
+    data:
+      num_repeats: 1
+      delay_secs: 2
+      hold_secs: 0
+      device: livingroomtv
+      command: settings
+    target:
+      device_id: 4a47caee5ce31baf382ec48451571326
+  mode: single
+  icon: mdi:television-speaker
+rainbird:
+  alias: Rainbird
+  sequence:
+  - if:
+    - condition: template
+      value_template: '{{ not(states(entity_id)|bool(false)) }}'
+    then:
+    - action: rainbird.start_irrigation
+      data:
+        duration: '{{ states(''input_number.rainbird_sprinkler_timer_1'') | int }}
+
+          '
+      target:
+        entity_id: '{{ entity_id }}
+
+          '
+    else:
+    - action: switch.turn_off
+      metadata: {}
+      data: {}
+      target:
+        entity_id: '{{ entity_id }}
+
+          '
+  description: ''
+  icon: mdi:sprinkler

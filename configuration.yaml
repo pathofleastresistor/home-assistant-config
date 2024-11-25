@@ -15,7 +15,7 @@ homeassistant:
 http:
   use_x_forwarded_for: true
   trusted_proxies:
-    - 172.16.32.0/20
+    - 172.16.144.0/20
 
 # https://www.home-assistant.io/integrations/frontend/
 frontend:
@@ -29,32 +29,20 @@ sensor:
       - "date_time"
       - "date_time_utc"
       - "date_time_iso"
-  - platform: systemmonitor
-    resources:
-      - type: disk_use_percent
-        arg: /config
-      - type: memory_free
-  - platform: systemmonitor
-    resources:
-      - type: processor_use
-  - platform: systemmonitor
-    resources:
-      - type: processor_temperature
-  - platform: systemmonitor
-    resources:
-      - type: memory_use_percent
-  - platform: systemmonitor
-    resources:
-      - type: disk_use_percent
-  - platform: mqtt_room
-    name: "Pixel 5 BLE"
-    device_id: !secret amit_phone_ble_id
-    state_topic: "espresense/rooms"
-    timeout: 5
-    away_timeout: 10
   - platform: college_football
     team_id: "TEX"
     name: Texas Longhorns
+  - platform: avanza_stock
+    stock: 472095
+    name: GOOGL
+  - platform: avanza_stock
+    stock: 3873
+    name: MSFT
+  - platform: avanza_stock
+    stock: 4478
+    name: NVDA
+
+wake_on_lan:
 
 # https://www.home-assistant.io/integrations/recorder/
 recorder:
@@ -97,3 +85,6 @@ recorder:
 
 # https://www.home-assistant.io/integrations/sun/
 sun:
+
+assist_pipeline:
+   debug_recording_dir: /config/www/assist_pipeline/
